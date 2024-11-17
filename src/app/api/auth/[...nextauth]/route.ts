@@ -23,6 +23,7 @@ export const authOptions: NextAuthOptions = {
         }
         const user = users.find(
           (user) =>
+            
             user.email === credentials?.email &&
             user.password === credentials?.password
         );

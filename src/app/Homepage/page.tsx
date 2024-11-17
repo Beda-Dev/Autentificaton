@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Heart, Mail, MapPin, Phone } from 'lucide-react'
 import Link from "next/link"
+import {signOut} from 'next-auth/react'
+
 
 
 export default function Component() {
@@ -15,9 +17,12 @@ export default function Component() {
   if (status === 'loading') {
     return <p>Chargement...</p>;
   }
+  
+
+
 
   if (!session) {
-    router.push('./');
+    router.push('/');
     return null;
   }
 
@@ -41,6 +46,9 @@ export default function Component() {
           <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
             Contact
           </Link>
+          <Button className="text-sm font-medium underline-offset-4 "  onClick={()=>{signOut()}}>
+            Deconnexion
+          </Button>
         </nav>
       </header>
       <main className="flex-1">
@@ -109,7 +117,7 @@ export default function Component() {
           </Link>
           <Link className="text-xs hover:underline underline-offset-4 flex items-center" href="#">
             <MapPin className="h-4 w-4 mr-1" />
-            123 Rue de Paris, 75000 Paris
+            Abidjan
           </Link>
         </nav>
       </footer>

@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-//import {users} from '../../lib/users'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-//import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true)
@@ -17,41 +15,58 @@ export default function AuthForm() {
   const [username, setUserName] = useState('')
   const [error, setError] = useState('')
 
-
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
-    if(isLogin && email && password){
 
+    if (isLogin) {
+      // Login flow
+      if (email && password) {
         const res = await signIn('credentials', {
-            redirect: false,
-            email,
-            password,
-          });
-        
-          if (res?.error) {
-            setError("Nom d'utilisateur ou mot de passe incorrect");
+          redirect: false,
+          email,
+          password,
+        })
+
+        if (res?.error) {
+          setError("Nom d'utilisateur ou mot de passe incorrect")
+        } else {
+          router.push('/Homepage')
+        }
+      } else {
+        setError('Veillez remplir tous les champs')
+      }
+    } else {
+      // Registration flow
+      if (username && email && password) {
+        const user = { email, password, username }
+        try {
+          const req = await fetch("/api/Sign", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+          })
+          
+          if (req.ok) {
+            setIsLogin(true)
+            setEmail('')
+            setPassword('')
+            setUserName('')
           } else {
-            router.push('/Homepage')
+            setError('Erreur lors de l\'inscription, veuillez réessayer.')
           }
-
-
+        } catch (err) {
+          console.error(err)
+          setError('Erreur lors de la communication avec le serveur.')
+        }
+      } else {
+        setError('Veillez remplir tous les champs')
+      }
     }
-    if (!email || !password) {
-      setError('Veillez remplir tous les champs')
-      return
-    }
-
-    if (!isLogin && !username) {
-      setError('veillez entrer votre nom')
-      return
-    }
-
-    // Here you would typically call your authentication API
-    console.log(isLogin ? 'Logging in...' : 'Registering...', { email, password, username })
   }
 
   return (
@@ -104,7 +119,7 @@ export default function AuthForm() {
       </CardContent>
       <CardFooter>
         <Button variant="link" className="w-full" onClick={() => setIsLogin(!isLogin)}>
-          {isLogin ? "Vous n'etes pas encore inscrit ? S'inscrire" : 'Vous etes inscrit ? se connecter'}
+          {isLogin ? "Vous n'êtes pas encore inscrit ? S'inscrire" : 'Vous êtes inscrit ? Se connecter'}
         </Button>
       </CardFooter>
     </Card>
